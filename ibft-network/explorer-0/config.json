@@ -1,0 +1,29 @@
+{
+  "algorithm": "ibft",
+  "nodes": [
+    {
+      "name": "quorum-0",
+      "client": "goquorum",
+      "rpcUrl": "http://10.0.0.10:8545",
+      "privateTxUrl": "http://10.0.0.10:9081",
+      "privateKey": "0x13d70c66406b3e631fe9fa24e9ab6136a554769d23229ebaac70e953de389961",
+      "accountAddress": "0xeea0b51e03a995eb0cfbbdf9137fb3fb2c5c80ec"
+    },
+    {
+      "name": "quorum-1",
+      "client": "goquorum",
+      "rpcUrl": "http://10.0.0.11:8545",
+      "privateTxUrl": "http://10.0.0.11:9081",
+      "privateKey": "0x45bc4364d3f263e0256b39bbe33179cc2010dec206947067ba18a43045daa800",
+      "accountAddress": "0xf36d2804150c8cb99e59e9746aecf7590ef9d549"
+    },
+    {
+      "name": "quorum-2",
+      "client": "goquorum",
+      "rpcUrl": "http://10.0.0.12:8545",
+      "privateTxUrl": "http://10.0.0.12:9081",
+      "privateKey": "0xa2f260dcf064d0fc84266231b2d04e26dd79fec060a2b972849b68d0c7e49021",
+      "accountAddress": "0xfbf2651464d1b94e62056166c017ec626757b387"
+    }
+  ]
+}

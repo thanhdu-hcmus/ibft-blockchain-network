@@ -1,0 +1,13 @@
+[Unit]
+Description=Quorum Service
+After=network.target
+
+[Service]
+User=ec2-user
+WorkingDirectory=/home/ec2-user/ibft-network/quorum-2
+Environment="ADDRESS=fbf2651464d1b94e62056166c017ec626757b387"
+Environment="PRIVATE_CONFIG=../tessera-2/tm.ipc"
+ExecStart=/bin/bash -c "../quorum/geth --datadir data --nodiscover --istanbul.blockperiod 3 --syncmode full --mine --miner.threads 1 --verbosity 5 --networkid 10 --http --http.addr 10.0.0.12 --http.port 8545 --http.api admin,db,eth,debug,miner,net,shh,txpool,personal,web3,quorum,istanbul --emitcheckpoints --allow-insecure-unlock --port 30303"
+
+[Install]
+WantedBy=multi-user.target

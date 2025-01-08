@@ -1,0 +1,11 @@
+[Unit]
+Description=Tessera Service
+After=network.target
+
+[Service]
+User=ec2-user
+WorkingDirectory=/home/ec2-user/ibft-network/tessera-0
+ExecStart=/bin/bash -c "../tessera/bin/tessera -configfile config.json"
+
+[Install]
+WantedBy=multi-user.target

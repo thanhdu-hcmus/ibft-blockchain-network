@@ -1,0 +1,52 @@
+{
+  "useWhiteList": false,
+  "jdbc": {
+    "username": "sa",
+    "password": "",
+    "url": "jdbc:h2://home/ec2-user/ibft-network/tessera-1/db1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0",
+    "autoCreateTables": true
+  },
+  "serverConfigs": [
+    {
+      "app": "ThirdParty",
+      "enabled": true,
+      "serverAddress": "http://10.0.0.11:9081",
+      "communicationType": "REST"
+    },
+    {
+      "app": "Q2T",
+      "enabled": true,
+      "serverAddress": "unix:/home/ec2-user/ibft-network/tessera-1/tm.ipc"
+    },
+    {
+      "app": "P2P",
+      "enabled": true,
+      "serverAddress": "http://10.0.0.11:9001",
+      "sslConfig": {
+        "tls": "OFF"
+      },
+      "communicationType": "REST"
+    }
+  ],
+  "peer": [
+    {
+      "url": "http://10.0.0.10:9001"
+    },
+    {
+      "url": "http://10.0.0.11:9001"
+    },
+    {
+      "url": "http://10.0.0.12:9001"
+    }
+  ],
+  "keys": {
+    "passwordFile": "/home/ec2-user/ibft-network/tessera-1/passwordFile",
+    "keyData": [
+      {
+        "privateKeyPath": "/home/ec2-user/ibft-network/tessera-1/tessera1.key",
+        "publicKeyPath": "/home/ec2-user/ibft-network/tessera-1/tessera1.pub"
+      }
+    ]
+  },
+  "alwaysSendTo": []
+}
