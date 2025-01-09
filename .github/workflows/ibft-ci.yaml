@@ -8,9 +8,17 @@ on:
     branches:
       - main
 
+env:
+  NODE_VERSION: '20.x'
+  HARDHAT_DIR: development/hardhat-tutorial
+  URL: ${{ vars.URL }}
+  ACCOUNTS: ${{ vars.ACCOUNTS }}
+
 jobs:
-  solhint:
+  setup:
     runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache-node-modules.outputs.cache-hit }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -18,115 +26,70 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'
-
-      - name: Install solhint
-        run: npm install -g solhint --silent
-
-      - name: Run solhint
-        run: solhint development/hardhat-tutorial/contracts/Token.sol
-        continue-on-error: true
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Cache node_modules
+        id: cache-node-modules
         uses: actions/cache@v3
         with:
-          path: node_modules
-          key: ${{ runner.os }}-solhint-${{ hashFiles('**/package-lock.json') }}
+          path: |
+            ${{ env.HARDHAT_DIR }}/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-solhint-
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: |
+          cd ${{ env.HARDHAT_DIR }}
+          npm install --silent
+
+  solhint:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Run Solhint
+        run: |
+          solhint ${{ env.HARDHAT_DIR }}/contracts/Token.sol
+        continue-on-error: true
 
   build:
     runs-on: ubuntu-latest
     needs: solhint
-    environment: quorum
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20.x'
-
-      - name: Install dependencies
-        run: |
-          cd development/hardhat-tutorial
-          npm install --silent
-          sudo apt-get update && sudo apt-get install -y git
-
-      - name: Build project
-        env:
-          URL: ${{ vars.URL }}
-          ACCOUNTS: ${{ vars.ACCOUNTS }}
-        run: |
-          cd development/hardhat-tutorial
-          npx hardhat clean
-          npx hardhat --max-memory 2048 compile
-
-      - name: Cache node_modules, artifacts, and cache
+      - name: Cache artifacts and build outputs
         uses: actions/cache@v3
         with:
           path: |
-            development/hardhat-tutorial/node_modules
-            development/hardhat-tutorial/artifacts
-            development/hardhat-tutorial/cache
-          key: ${{ runner.os }}-solidity-${{ hashFiles('**/package-lock.json') }}
+            ${{ env.HARDHAT_DIR }}/artifacts
+            ${{ env.HARDHAT_DIR }}/cache
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-solidity-
+            ${{ runner.os }}-build-
+
+      - name: Build project
+        run: |
+          cd ${{ env.HARDHAT_DIR }}
+          npx hardhat clean
+          npx hardhat --max-memory 2048 compile
 
   test:
     runs-on: ubuntu-latest
     needs: build
-    environment: quorum
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20.x'
-
-      - name: Install dependencies
-        run: |
-          cd development/hardhat-tutorial
-          npm install --silent
-          sudo apt-get update && sudo apt-get install -y git
-
       - name: Run tests
-        env:
-          URL: ${{ vars.URL }}
-          ACCOUNTS: ${{ vars.ACCOUNTS }}
         run: |
-          cd development/hardhat-tutorial
+          cd ${{ env.HARDHAT_DIR }}
           npx hardhat test
 
   deploy:
     runs-on: ubuntu-latest
     needs: test
-    environment: quorum
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20.x'
-
-      - name: Install dependencies
-        run: |
-          cd development/hardhat-tutorial
-          npm install --silent
-          sudo apt-get update && sudo apt-get install -y git
-
       - name: Deploy application
-        env:
-          URL: ${{ vars.URL }}
-          ACCOUNTS: ${{ vars.ACCOUNTS }}
         run: |
-          cd development/hardhat-tutorial
+          cd ${{ env.HARDHAT_DIR }}
           echo "Deploying application..."
           yes y | npx hardhat ignition deploy ./ignition/modules/Token.js --network quorum
           echo "Application successfully deployed."
