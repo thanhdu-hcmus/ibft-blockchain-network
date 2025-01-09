@@ -117,5 +117,5 @@ jobs:
         run: |
           cd development/hardhat-tutorial
           echo "Deploying application..."
-          npx hardhat ignition deploy ./ignition/modules/Token.js --network quorum
+          yes y | npx hardhat ignition deploy ./ignition/modules/Token.js --network quorum
           echo "Application successfully deployed."
